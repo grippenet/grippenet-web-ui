@@ -1,4 +1,4 @@
-import { CommonResponseComponentProps, getItemComponentByRole, getLocaleStringTextByCode, getStyleValueByKey } from './utils';
+import { CommonResponseComponentProps, getItemComponentByRole, getLocaleStringTextByCode, getStyleValueByKey, textsFromComponents} from './utils';
 import React, { useEffect, useState, useRef } from 'react';
 import { isItemGroupComponent, LocalizedObject, ResponseItem } from 'survey-engine/data_types';
 import { Alert, Badge, Button, ListGroup } from 'react-bootstrap';
@@ -28,10 +28,12 @@ interface LookupResponseComponentProps extends CommonResponseComponentProps {
 
 }
 
-type TextKeys = 'buttonLabel' | 'updateButton' | 'searchLabel' | 'responseLabel' | 'searchButton' | 'selectEntry' | 'loadingError' | 'minLengthError';
+const TextKeys = ['buttonLabel', 'updateButton',  'searchLabel' , 'responseLabel' , 'searchButton' , 'selectEntry' , 'loadingError' , 'minLengthError'] as const;
 
+// 👇️Create union type from the readonly array of keys
+type TextKeyType  = typeof TextKeys[number];
 
-type TextUI = Record<TextKeys, string>;
+type TextUI = Record<TextKeyType, string>;
 
 interface LookupFieldProps {
     lookupService: LookupService
@@ -230,21 +232,9 @@ export const LookupResponseComponent : React.FC<LookupResponseComponentProps> = 
         texts.searchLabel = mainLabel;
     }
 
-    const setTextFrom = (content: LocalizedObject[]|undefined, def: string) => {
-        const b = content ? getLocaleStringTextByCode(content, props.languageCode) : def;
-        return b ? b : def;
-    } 
-
     if(isItemGroupComponent(props.compDef)) {
-        const comps = props.compDef.items;
-        const roles: Array<TextKeys> = ['buttonLabel', 'updateButton',  'searchLabel' , 'responseLabel' , 'searchButton' , 'selectEntry' , 'loadingError' , 'minLengthError'];
-        roles.forEach(name => {
-            const comp = getItemComponentByRole(comps, name);
-            if(comp) {
-                texts[name] = setTextFrom(comp.content, texts[name]);
-            }
-        });
-        const cn = getItemComponentByRole(comps, 'lookupName');
+        textsFromComponents<TextKeyType>(props.compDef, TextKeys,  texts, props.languageCode);
+        const cn = getItemComponentByRole(props.compDef.items, 'lookupName');
         if(cn && cn.key) {
             lookupName = cn.key;
         }
@@ -253,7 +243,7 @@ export const LookupResponseComponent : React.FC<LookupResponseComponentProps> = 
     const lookupService = lookupServices.get(lookupName);
 
     if(!lookupService) {
-        return <div>Unknown lookup service {{lookupName}}</div>;
+        return <div>Unknown lookup service {lookupName}</div>;
     }
 
     const [response, setResponse] = useState<ResponseItem | undefined>(props.prefill);
