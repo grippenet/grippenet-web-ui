@@ -1,6 +1,6 @@
 {
   "name": "grippenet-web-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React components for Grippenet Web ui",
   "scripts": {
     "build": "rollup -c",
@@ -8,8 +8,8 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
-  "main": "index.js",
-  "module": "index.es.js",
+  "main": "build/index.js",
+  "module": "build/index.es.js",
   "files": [
     "build"
   ],
