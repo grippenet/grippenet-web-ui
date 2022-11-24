@@ -1,0 +1,26 @@
+{
+    "key": "lookup",
+    "role": ":bmi",
+    "items": [
+      {
+        "role": "WeightLabel",
+        "content": [ { "code": "fr", "parts": [ { "str": "Poids (en kilogramme)"} ] } ]
+      },
+      {
+        "role": "updateButton",
+        "content": [ { "code": "fr", "parts": [ { "str": "Taille (en cm)"} ] } ]
+      }
+    ],
+    "style": [
+    ],
+    "content": [
+      {
+        "code": "fr",
+        "parts": [
+          {
+            "str": "Indiquez votre poids et taille"
+          }
+        ]
+      }
+    ]
+  }
