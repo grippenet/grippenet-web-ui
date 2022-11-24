@@ -28,7 +28,7 @@ interface LookupResponseComponentProps extends CommonResponseComponentProps {
 
 }
 
-const TextKeys = ['buttonLabel', 'updateButton',  'searchLabel' , 'responseLabel' , 'searchButton' , 'selectEntry' , 'loadingError' , 'minLengthError'] as const;
+const TextKeys = ['updateButton',  'searchLabel' , 'responseLabel' , 'searchButton' , 'selectEntry' , 'loadingError' , 'minLengthError'] as const;
 
 // 👇️Create union type from the readonly array of keys
 type TextKeyType  = typeof TextKeys[number];
@@ -204,10 +204,9 @@ export const LookupResponseComponent : React.FC<LookupResponseComponentProps> = 
         searchLabel: "Enter your search and click on the search button",
         searchButton: "Search",
         selectEntry: "Select the entry in the list",
-        loadingError: "An error occured during the data loading",
+        loadingError: "An error occurred during the data loading",
         responseLabel: "Your current response is",
         minLengthError: "Enter at least {v} characters",
-        buttonLabel: 'Search',
         updateButton: 'Update'
     };
 
