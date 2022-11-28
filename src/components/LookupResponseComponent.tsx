@@ -93,8 +93,13 @@ class LookupService {
      */
     async search(value: string): Promise<LookupEntry[]> {
         const lookupUrl = this.url + '/query/' + value;
-        const response = await fetch(lookupUrl)
+        const response = await fetch(lookupUrl);
+        if(response.status != 200) {
+            console.log('response', response);
+            throw new Error(response.statusText);
+        }
         const data = await response.json() as LookupListResponse;
+        //console.log('fetched ', data);
         return data.data;
     }
 
@@ -164,9 +169,14 @@ const LookupField: React.FC<LookupFieldProps> = (props) => {
         const fetchData = async() => {
             try {
                 const data = await props.lookupService.search(search);
-                setList(data);
+                if(data) {
+                    setList(data);
+                } else {
+                    console.log('no data', data);
+                }
             } catch(error) {
-                console.log(`Error fetching ${error}`)
+                setList([]);
+                console.log(`Error fetching`, error);
                 setError(props.texts.loadingError);
                 setSearching(false);
             } finally {
