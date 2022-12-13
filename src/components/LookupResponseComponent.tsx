@@ -274,10 +274,11 @@ export const LookupResponseComponent : React.FC<LookupResponseComponentProps> = 
         setLabel(label);
         setShow(false);
     }
-
     
     useEffect(()=>{
-        props.responseChanged(response);
+        if(response) {
+            props.responseChanged(response);
+        }
     }, [response]);
 
     useEffect( ()=> {
