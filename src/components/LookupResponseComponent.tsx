@@ -25,7 +25,7 @@ interface LookupLabelResponse {
 }
 
 interface LookupResponseComponentProps extends CommonResponseComponentProps {
-
+    prefixKey?: string;
 }
 
 const TextKeys = ['updateButton',  'searchLabel' , 'responseLabel' , 'searchButton' , 'selectEntry' , 'loadingError' , 'minLengthError'] as const;
@@ -303,7 +303,7 @@ export const LookupResponseComponent : React.FC<LookupResponseComponentProps> = 
     return (
         <React.Fragment>
         { label ? <p>{texts.responseLabel}<Badge className='ms-1'>{label}</Badge><Button size="sm" variant='primary' className='ms-1' onClick={()=> setShow(true) }>{texts.updateButton}</Button></p>  : '' }
-        { show ? <LookupField prefixKey='toto' minLength={minLength} maxLength={maxLength} texts={texts} responseSelected={responseSelected} lookupService={lookupService} /> : '' }
+        { show ? <LookupField prefixKey={props.prefixKey ?? 'lookup-field'} minLength={minLength} maxLength={maxLength} texts={texts} responseSelected={responseSelected} lookupService={lookupService} /> : '' }
         </React.Fragment>
     );
 
