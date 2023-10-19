@@ -7,7 +7,7 @@ interface BMIResponseComponentProps extends CommonResponseComponentProps {
 
 }
 
-const TextKeys = ['weightLabel', 'heightLabel', 'BmiLabel', 'ValuesnotStored','ExtremeValues'] as const;
+const TextKeys = ['weightLabel', 'heightLabel', 'weightUnit', 'heightUnit', 'bmiLabel', 'valuesnotStored','extremeValues'] as const;
 
 // 👇️Create union type from the readonly array of keys
 type TextKeyType  = typeof TextKeys[number];
@@ -23,10 +23,12 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
   
     const texts : TextUI = {
         weightLabel: 'Weight',
+        weightUnit: 'Kg',
         heightLabel: 'Height',
-        BmiLabel: 'Your Body mass Index',
-        ValuesnotStored: 'Weight and height are not stored',
-        ExtremeValues: 'Those values are extreme and very rares, please check your body values',
+        heightUnit: 'cm',
+        bmiLabel: 'Your Body Mass Index is',
+        valuesnotStored: 'Weight and height are not stored',
+        extremeValues: 'Those values are extreme and very rares, please check your body values',
     }
     
     if(isItemGroupComponent(props.compDef)) {
@@ -63,7 +65,7 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
         }
         const v = +bmi;
         if(v < 10 || v > 70) {
-            return <Alert variant='warning'>{texts.ExtremeValues}</Alert>
+            return <Alert variant='warning'>{texts.extremeValues}</Alert>
         }
     }
 
@@ -82,13 +84,13 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
 
     return <fieldset className='m-1'>
         <div className='d-line'>
-        <label className='me-1'>{texts.heightLabel}</label>
+        <label className='me-1'>{texts.heightLabel} <small className='mx-1'>{texts.heightUnit}</small></label>
         <input type="number" min={20} max={250} className='me-1' onChange={(e) => updateHeight(e.currentTarget.value)}/>
-        <label className='me-1'>{texts.weightLabel}</label>
+        <label className='me-1'>{texts.weightLabel}<small className='mx-1'>{texts.weightUnit}</small></label>
         <input type="number" min={1} max={650} onChange={(e) => updateWeight(e.currentTarget.value)}/>
-        <p><small className='text-warning'>{texts.ValuesnotStored}</small></p>
+        <p><small className='text-warning'>{texts.valuesnotStored}</small></p>
         </div>
-        { bmi ? <p><span>{texts.BmiLabel}</span><Badge bg="primary">{bmi}</Badge></p> : ''}
+        { bmi ? <p><span>{texts.bmiLabel}</span><Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></p> : ''}
         { bmi ? showExtremesValues(bmi) : ''}
     </fieldset>
 

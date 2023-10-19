@@ -24,11 +24,19 @@ const bmidef = {
     "items": [
       {
         "role": "weightLabel",
-        "content": [ { "code": "fr", "parts": [ { "str": "Poids (en kilogramme)"} ] } ]
+        "content": [ { "code": "fr", "parts": [ { "str": "Poids"} ] } ]
+      },
+      {
+        "role": "weightUnit",
+        "content": [ { "code": "fr", "parts": [ { "str": "(en kilogrammes)"} ] } ]
       },
       {
         "role": "heightLabel",
-        "content": [ { "code": "fr", "parts": [ { "str": "Taille (en cm)"} ] } ]
+        "content": [ { "code": "fr", "parts": [ { "str": " Taille"} ] } ]
+      },
+      {
+        "role": "heightUnit",
+        "content": [ { "code": "fr", "parts": [ { "str": "(en centimètres)"} ] } ]
       }
     ],
     "style": [
