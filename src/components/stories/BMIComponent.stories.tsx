@@ -9,14 +9,14 @@ const responseChanged = (response:ResponseItem|undefined)=>{
  console.log(response);
 }
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory, ComponentMeta, StoryObj, Meta } from '@storybook/react';
 
 export default {
     title: 'BMi Component',
     component: BMIResponseComponent,
-} as ComponentMeta<typeof BMIResponseComponent>;
-  
-const Template = (args) => <BMIResponseComponent {...args} />;
+} as Meta<typeof BMIResponseComponent>;
+
+type Story = StoryObj<typeof BMIResponseComponent>;
 
 const bmidef = {
     "key": "lookup",
@@ -55,12 +55,24 @@ const bmidef = {
 
 resolveTexts(bmidef);
 
-export const BlankComponent = Template.bind({});
+export const BaseComponent : Story = {
+  args : {
+      dateLocales: dateLocales,
+      parentKey:"Q1",
+      compDef:bmidef,
+      languageCode: 'fr',
+      responseChanged:responseChanged
+  }
+}
 
-BlankComponent.args = {
+export const WithPrefillComponent : Story = {
+  args :  {
     dateLocales: dateLocales,
     parentKey:"Q1",
     compDef:bmidef,
     languageCode: 'fr',
-    responseChanged:responseChanged
-};
+    responseChanged:responseChanged,
+    prefill: {'value': 23},
+    showPrevious: true
+  }
+}

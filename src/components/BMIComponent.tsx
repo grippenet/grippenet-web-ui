@@ -1,13 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Alert, Badge } from 'react-bootstrap';
+import { Alert, Badge, Button } from 'react-bootstrap';
 import { ItemGroupComponent, ResponseItem, isItemGroupComponent, LocalizedObject } from 'survey-engine/data_types';
 import { CommonResponseComponentProps, getStyleValueByKey, textsFromComponents } from './utils';
 
 interface BMIResponseComponentProps extends CommonResponseComponentProps {
-
+    showPrevious?: boolean;
 }
 
-const TextKeys = ['weightLabel', 'heightLabel', 'weightUnit', 'heightUnit', 'bmiLabel', 'valuesnotStored','extremeValues'] as const;
+const TextKeys = [
+    'weightLabel', 'heightLabel', 'weightUnit', 'heightUnit', 'bmiLabel',
+     'extremeValues', 'alreadyProvided', 'modifyButton',
+     'previousValue'
+    ] as const;
 
 // 👇️Create union type from the readonly array of keys
 type TextKeyType  = typeof TextKeys[number];
@@ -16,19 +20,24 @@ type TextUI = Record<TextKeyType, string>;
 
 export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props) => {
 
+    const prefillValue = props.prefill ? props.prefill.value : undefined; 
+
     const [response, setResponse] = useState<ResponseItem | undefined>(props.prefill);
     const [touched, setTouched] = useState(false);
     const [weight, setWeight] = useState<number|undefined>(undefined);
     const [height, setHeight] = useState<number|undefined>(undefined);
-  
+    const [showDetails, setShowDetails] = useState<boolean>(typeof(prefillValue) == "undefined");
+    
     const texts : TextUI = {
         weightLabel: 'Weight',
         weightUnit: 'Kg',
         heightLabel: 'Height',
         heightUnit: 'cm',
         bmiLabel: 'Your Body Mass Index is',
-        valuesnotStored: 'Weight and height are not stored',
-        extremeValues: 'Those values are extreme and very rares, please check your body values',
+        extremeValues: 'Those values are extreme and very rare, please check your body values and the unit (kilogramme and centimeters)',
+        alreadyProvided: 'A value has already been provided, click here if you want to change it',
+        modifyButton: "Modify my response",
+        previousValue:"You previous value was"
     }
     
     if(isItemGroupComponent(props.compDef)) {
@@ -77,20 +86,32 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
     }, [height, weight]);
 
     useEffect( () => {
-        props.responseChanged(response);
+        if(response) {
+            props.responseChanged(response);
+        }
     }, [response]);
 
     const bmi = response ? response.value : undefined;
 
     return <fieldset className='m-1'>
-        <div className='d-line'>
-        <label className='me-1'>{texts.heightLabel} <small className='mx-1'>{texts.heightUnit}</small></label>
-        <input type="number" min={20} max={250} className='me-1' onChange={(e) => updateHeight(e.currentTarget.value)}/>
-        <label className='me-1'>{texts.weightLabel}<small className='mx-1'>{texts.weightUnit}</small></label>
-        <input type="number" min={1} max={650} onChange={(e) => updateWeight(e.currentTarget.value)}/>
-        <p><small className='text-warning'>{texts.valuesnotStored}</small></p>
-        </div>
-        { bmi ? <p><span>{texts.bmiLabel}</span><Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></p> : ''}
+        {prefillValue ? 
+            (<p>
+                { texts.alreadyProvided }
+                <Button onClick={()=>setShowDetails(true)} variant='primary' size='sm' className='ms-1 rounded'>{texts.modifyButton}</Button>
+            </p>) : ''
+        }
+        {showDetails ? (
+            <div className='d-line'>
+                <label className='me-1'>{texts.heightLabel} <small className='mx-1'>{texts.heightUnit}</small></label>
+                <input type="number" min={20} max={250} className='me-1' onChange={(e) => updateHeight(e.currentTarget.value)}/>
+                <label className='me-1'>{texts.weightLabel}<small className='mx-1'>{texts.weightUnit}</small></label>
+                <input type="number" min={1} max={650} onChange={(e) => updateWeight(e.currentTarget.value)}/>
+            </div>) : ''}
+            <p className='mt-1'>
+                { bmi ? <span>{texts.bmiLabel}<Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></span> : ''}
+                { props.showPrevious && prefillValue ?  <span className='ms-1'>{texts.previousValue} <span className='text-primary'>{prefillValue}</span></span> : "" }
+            </p>
+        
         { bmi ? showExtremesValues(bmi) : ''}
     </fieldset>
 
