@@ -20,8 +20,13 @@ type TextUI = Record<TextKeyType, string>;
 
 export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props) => {
 
-    const prefillValue = props.prefill ? props.prefill.value : undefined; 
-
+    const [prefillValue, setPrefillValue] = useState<number|undefined>(() => {
+        const v = props.prefill && props.prefill.value ? parseInt(props.prefill.value) : undefined;
+        if(!v || isNaN(v)) {
+            return undefined;
+        }
+        return v;
+    });
     const [response, setResponse] = useState<ResponseItem | undefined>(props.prefill);
     const [touched, setTouched] = useState(false);
     const [weight, setWeight] = useState<number|undefined>(undefined);
@@ -92,6 +97,8 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
     }, [response]);
 
     const bmi = response ? response.value : undefined;
+
+    console.log('bmi', {'bmi': bmi,prefillValue:prefillValue, showDetails: showDetails, response: response });
 
     return <fieldset className='m-1'>
         {prefillValue ? 
