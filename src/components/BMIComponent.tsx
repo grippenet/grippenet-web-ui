@@ -10,7 +10,7 @@ interface BMIResponseComponentProps extends CommonResponseComponentProps {
 const TextKeys = [
     'weightLabel', 'heightLabel', 'weightUnit', 'heightUnit', 'bmiLabel',
      'extremeValues', 'alreadyProvided', 'modifyButton',
-     'previousValue'
+     'previousValue', 'notDefined', 'keepLastValue'
     ] as const;
 
 // 👇️Create union type from the readonly array of keys
@@ -42,35 +42,47 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
         extremeValues: 'Those values are extreme and very rare, please check your body values and the unit (kilogramme and centimeters)',
         alreadyProvided: 'A value has already been provided, click here if you want to change it',
         modifyButton: "Modify my response",
-        previousValue:"You previous value was"
+        previousValue:"Your previous value was",
+        notDefined: "BMI not defined",
+        keepLastValue:"I prefer to keep previous value"
     }
     
     if(isItemGroupComponent(props.compDef)) {
         textsFromComponents<TextKeyType>(props.compDef, TextKeys,  texts, props.languageCode);
     }
+
+    const restoreOldValue = () => {
+        if(typeof(prefillValue) == "number") {
+            setBMI(prefillValue);
+            setShowDetails(false);
+        }
+    }
    
     const updateWeight = (value: string)=>{
         const w = parseInt(value);
-        if(!isNaN(w)) {
-            setWeight(w);
-        }
+        console.log('weight', value, w);
+        setWeight(!isNaN(w) ? w : undefined);
         setTouched(true);
     }
 
     const updateHeight = (value: string)=>{
         const h = parseInt(value);
-        if(!isNaN(h)) {
-            setHeight(h);
-        }
+        console.log('height', value, h);
+        setHeight(!isNaN(h) ? h : undefined);
         setTouched(true);
     };
+
+    const hasValue = (v?: number): v is number =>  {
+        return typeof(v) === "number" && !isNaN(v);
+    }
 
     const setBMI = (bmi: number) => {
         if(!props.compDef.key) {
             console.log('Key of bmi component not found');
             return;
         }
-        setResponse({key: props.compDef.key, value: '' + bmi, dtype:'number'});
+        console.log('setBMI', bmi);
+        setResponse({key: props.compDef.key, value: hasValue(bmi) ? '' + bmi : '', dtype:'number'});
     }
 
     const showExtremesValues = (bmi:string|undefined)=> {
@@ -84,10 +96,8 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
     }
 
     useEffect(()=>{
-        if(height && weight) {
-            const bmi = Math.trunc(weight / Math.pow(height/100, 2));
-            setBMI(bmi);
-        }
+        const bmi =  hasValue(height) && hasValue(weight) ? Math.trunc(weight / Math.pow(height/100, 2)) : NaN;
+        setBMI(bmi);
     }, [height, weight]);
 
     useEffect( () => {
@@ -107,18 +117,23 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
                 <Button onClick={()=>setShowDetails(true)} variant='primary' size='sm' className='ms-1 rounded'>{texts.modifyButton}</Button>
             </p>) : ''
         }
+        <p className='mt-1'>
+        { props.showPrevious && prefillValue ?  <span className='ms-1'>{texts.previousValue} <span className='text-primary'>{prefillValue}</span></span> : "" }
+        </p>    
         {showDetails ? (
             <div className='d-line'>
                 <label className='me-1'>{texts.heightLabel} <small className='mx-1'>{texts.heightUnit}</small></label>
                 <input type="number" min={20} max={250} className='me-1' onChange={(e) => updateHeight(e.currentTarget.value)}/>
                 <label className='me-1'>{texts.weightLabel}<small className='mx-1'>{texts.weightUnit}</small></label>
                 <input type="number" min={1} max={650} onChange={(e) => updateWeight(e.currentTarget.value)}/>
-            </div>) : ''}
-            <p className='mt-1'>
-                { bmi ? <span>{texts.bmiLabel}<Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></span> : ''}
-                { props.showPrevious && prefillValue ?  <span className='ms-1'>{texts.previousValue} <span className='text-primary'>{prefillValue}</span></span> : "" }
-            </p>
-        
+                <p className='mt-1'>
+                { 
+                    bmi ? <span>{texts.bmiLabel}<Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></span> : <span>{texts.notDefined}</span>
+                }
+                </p>
+                {prefillValue ? <Button onClick={()=>restoreOldValue()} variant='primary' size='sm' className='ms-1 rounded'>{texts.keepLastValue}</Button> : ''}
+            </div>
+            ) : ''}
         { bmi ? showExtremesValues(bmi) : ''}
     </fieldset>
 
