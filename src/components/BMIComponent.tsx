@@ -85,7 +85,7 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
 
     useEffect(()=>{
         if(height && weight) {
-            const bmi = Math.round(weight / Math.pow(height/100, 2));
+            const bmi = Math.trunc(weight / Math.pow(height/100, 2));
             setBMI(bmi);
         }
     }, [height, weight]);
