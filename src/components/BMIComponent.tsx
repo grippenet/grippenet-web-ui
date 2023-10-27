@@ -10,7 +10,7 @@ interface BMIResponseComponentProps extends CommonResponseComponentProps {
 const TextKeys = [
     'weightLabel', 'heightLabel', 'weightUnit', 'heightUnit', 'bmiLabel',
      'extremeValues', 'alreadyProvided', 'modifyButton',
-     'previousValue', 'notDefined', 'keepLastValue'
+     'previousValue', 'notDefined', 'keepLastValue', 'weightError', 'heightError', 'cancelButton'
     ] as const;
 
 // 👇️Create union type from the readonly array of keys
@@ -32,6 +32,9 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
     const [weight, setWeight] = useState<number|undefined>(undefined);
     const [height, setHeight] = useState<number|undefined>(undefined);
     const [showDetails, setShowDetails] = useState<boolean>(typeof(prefillValue) == "undefined");
+    const [heightError, setHeightError] = useState<boolean>(false);
+    const [weightError, setWeightError] = useState<boolean>(false);
+    
     
     const texts : TextUI = {
         weightLabel: 'Weight',
@@ -44,7 +47,10 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
         modifyButton: "Modify my response",
         previousValue:"Your previous value was",
         notDefined: "BMI not defined",
-        keepLastValue:"I prefer to keep previous value"
+        keepLastValue:"I prefer to keep previous value",
+        weightError: "Your weight is out of possible bounds. Please indicate a value between 1 and 600",
+        heightError: "Your height is out of possible bounds. Please indicate a value between 25 and 250",
+        cancelButton: "Cancel response",
     }
     
     if(isItemGroupComponent(props.compDef)) {
@@ -58,18 +64,29 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
         }
     }
    
-    const updateWeight = (value: string)=>{
-        const w = parseInt(value);
-        console.log('weight', value, w);
-        setWeight(!isNaN(w) ? w : undefined);
+    const updateValue = (value: string, setter: (v?:number)=>void, error:(v:boolean)=>void, min: number, max:number) => {
+        var v: number|undefined = parseInt(value);
+        var e: boolean = false;
+        if(isNaN(v)) {
+            v = undefined;
+        } else {
+            if(v < min || v > max) {
+                v = undefined;
+                e = true;
+            }
+        }
+        setter(v);
+        error(e);
         setTouched(true);
     }
 
+
+    const updateWeight = (value: string)=>{
+        updateValue(value, setWeight, setWeightError, 1, 600);
+    }
+
     const updateHeight = (value: string)=>{
-        const h = parseInt(value);
-        console.log('height', value, h);
-        setHeight(!isNaN(h) ? h : undefined);
-        setTouched(true);
+        updateValue(value, setHeight, setHeightError, 25, 250);
     };
 
     const hasValue = (v?: number): v is number =>  {
@@ -93,6 +110,12 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
         if(v < 10 || v > 70) {
             return <Alert variant='warning'>{texts.extremeValues}</Alert>
         }
+    }
+
+    const cancelValue  = ()=> {
+        setHeight(undefined);
+        setWeight(undefined);
+        setBMI(NaN);
     }
 
     useEffect(()=>{
@@ -126,12 +149,20 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
                 <input type="number" min={20} max={250} className='me-1' onChange={(e) => updateHeight(e.currentTarget.value)}/>
                 <label className='me-1'>{texts.weightLabel}<small className='mx-1'>{texts.weightUnit}</small></label>
                 <input type="number" min={1} max={650} onChange={(e) => updateWeight(e.currentTarget.value)}/>
+                {weightError ? <Alert variant='warning' className='my-1 p-1'>{texts.weightError}</Alert> : ''}
+                {heightError ? <Alert variant='warning' className='my-1 p-1'>{texts.heightError}</Alert> : ''}
                 <p className='mt-1'>
                 { 
                     bmi ? <span>{texts.bmiLabel}<Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></span> : <span>{texts.notDefined}</span>
                 }
                 </p>
-                {prefillValue ? <Button onClick={()=>restoreOldValue()} variant='primary' size='sm' className='ms-1 rounded'>{texts.keepLastValue}</Button> : ''}
+                {prefillValue ? (
+                    <div>
+                        <Button onClick={()=>restoreOldValue()} variant='primary' size='sm' className='ms-1 rounded'>{texts.keepLastValue}</Button> 
+                        <Button onClick={()=>cancelValue()} variant='primary' size='sm' className='ms-1 rounded'>{texts.cancelButton}</Button> 
+                    </div>
+                    )
+                : ''}
             </div>
             ) : ''}
         { bmi ? showExtremesValues(bmi) : ''}
