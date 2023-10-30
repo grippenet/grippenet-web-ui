@@ -144,13 +144,17 @@ export const BMIResponseComponent : React.FC<BMIResponseComponentProps> = (props
         { props.showPrevious && prefillValue ?  <span className='ms-1'>{texts.previousValue} <span className='text-primary'>{prefillValue}</span></span> : "" }
         </p>    
         {showDetails ? (
-            <div className='d-line'>
+            <div>
+                <p>
                 <label className='me-1'>{texts.heightLabel} <small className='mx-1'>{texts.heightUnit}</small></label>
                 <input type="number" min={20} max={250} className='me-1' onChange={(e) => updateHeight(e.currentTarget.value)}/>
+                {heightError ? <Alert variant='warning' className='my-1 p-1'>{texts.heightError}</Alert> : ''}
+                </p>
+                <p>
                 <label className='me-1'>{texts.weightLabel}<small className='mx-1'>{texts.weightUnit}</small></label>
                 <input type="number" min={1} max={650} onChange={(e) => updateWeight(e.currentTarget.value)}/>
                 {weightError ? <Alert variant='warning' className='my-1 p-1'>{texts.weightError}</Alert> : ''}
-                {heightError ? <Alert variant='warning' className='my-1 p-1'>{texts.heightError}</Alert> : ''}
+                </p>
                 <p className='mt-1'>
                 { 
                     bmi ? <span>{texts.bmiLabel}<Badge bg="primary" pill={true} className='ms-1'>{bmi}</Badge></span> : <span>{texts.notDefined}</span>
